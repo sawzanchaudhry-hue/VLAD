@@ -1,0 +1,39 @@
+import pigpio
+import time
+import sys
+import tty
+import termios
+
+SERVO_GPIO = 4 #Servo GPIO Pin
+
+# Initialize pigpio
+pi = pigpio.pi()
+if not pi.connected:
+    raise RuntimeError("Failed to connect to pigpio daemon")
+# Set GPIO to output mode
+pi.set_mode(SERVO_GPIO, pigpio.OUTPUT)
+
+def set_servo_angle(angle: float):
+    angle = max(0, min(180, angle))
+    pulse_width = int(500 + (angle / 180.0) * 2000)
+    pi.set_servo_pulsewidth(SERVO_GPIO, pulse_width)
+
+def get_char():
+    fd = sys.stdin.fileno()
+    old = termios.tcgetattr(fd)
+    try:
+        tty.setraw(fd)
+        return sys.stdin.read(1)
+    finally:
+        termios.tcsetattr(fd, termios.TCSADRAIN, old)
+
+while True:
+  c = get_char().upper()
+  if c == "A":
+    print("Running A code")
+    set_servo_angle(10)
+    break
+  elif c == "B":
+    print("Running B code")
+    set_servo_angle(150)
+    break
