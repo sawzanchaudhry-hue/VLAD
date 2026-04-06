@@ -1,0 +1,21 @@
+def handle_command(command):
+    print("UI command:", command)
+
+    if command == "start_zoom":
+        with lock:
+            ready = (current_state == "recognized_patient" and zoom_ready)
+
+        if ready:
+            set_state(
+                state="zoom_active",
+                message="Zoom call active",
+                nursing=True,
+                join_zoom=False,
+                end_call=True,
+                zoom_is_ready=True,
+                zoom_is_active=True,
+            )
+
+    elif command == "end_call":
+        stop_face_and_servo()
+        begin_roaming("Call finished. Resuming bed search...")
